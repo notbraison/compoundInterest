@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Compound Growth Calculator</title>
+	<style>
+		:root {
+			--ink: #17212b;
+			--muted: #66727d;
+			--surface: #ffffff;
+			--background: #eef4f3;
+			--accent: #087f72;
+			--accent-dark: #056056;
+			--line: #d7e2df;
+			--shadow: 0 24px 60px rgba(23, 33, 43, 0.12);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			display: grid;
+			place-items: center;
+			padding: 24px;
+			color: var(--ink);
+			background: radial-gradient(circle at top left, #d8efeb, transparent 42%), var(--background);
+			font-family: Georgia, "Times New Roman", serif;
+		}
+
+		.calculator {
+			width: min(100%, 900px);
+			overflow: hidden;
+			display: grid;
+			grid-template-columns: 0.9fr 1.1fr;
+			background: var(--surface);
+			border: 1px solid rgba(215, 226, 223, 0.8);
+			border-radius: 20px;
+			box-shadow: var(--shadow);
+		}
+
+		.intro,
+		.form-panel {
+			padding: clamp(28px, 5vw, 52px);
+		}
+
+		.intro {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			color: #f4fffd;
+			background: linear-gradient(145deg, var(--accent-dark), var(--accent));
+		}
+
+		.eyebrow {
+			margin: 0 0 18px;
+			color: #a9e4dc;
+			font: 700 0.75rem/1.2 Arial, sans-serif;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+		}
+
+		h1 {
+			max-width: 360px;
+			margin: 0;
+			font-size: clamp(2.3rem, 5vw, 4.4rem);
+			line-height: 0.98;
+			font-weight: 400;
+		}
+
+		.intro-copy {
+			max-width: 300px;
+			margin: 28px 0 0;
+			color: #d7f4ef;
+			font: 1rem/1.6 Arial, sans-serif;
+		}
+
+		.formula {
+			margin: 56px 0 0;
+			color: #b9e9e2;
+			font-size: 1.15rem;
+			font-style: italic;
+		}
+
+		.formula-note {
+			max-width: 310px;
+			margin: 12px 0 0;
+			color: #d7f4ef;
+			font: 0.78rem/1.5 Arial, sans-serif;
+		}
+
+		.form-panel {
+			background: var(--surface);
+		}
+
+		h2 {
+			margin: 0 0 26px;
+			font-size: 1.65rem;
+			font-weight: 400;
+		}
+
+		.form-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 18px;
+		}
+
+		label {
+			display: block;
+			color: var(--muted);
+			font: 700 0.78rem/1.2 Arial, sans-serif;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		input,
+		select {
+			width: 100%;
+			margin-top: 8px;
+			padding: 13px 14px;
+			color: var(--ink);
+			background: #fbfdfc;
+			border: 1px solid var(--line);
+			border-radius: 9px;
+			font: 1rem Georgia, "Times New Roman", serif;
+		}
+
+		input:focus,
+		select:focus {
+			outline: 3px solid rgba(8, 127, 114, 0.18);
+			border-color: var(--accent);
+		}
+
+		.full-width {
+			grid-column: 1 / -1;
+		}
+
+		button {
+			width: 100%;
+			margin-top: 24px;
+			padding: 15px 20px;
+			color: #ffffff;
+			background: var(--accent);
+			border: 0;
+			border-radius: 9px;
+			cursor: pointer;
+			font: 700 0.95rem Arial, sans-serif;
+			transition: background 160ms ease, transform 160ms ease;
+		}
+
+		button:hover {
+			background: var(--accent-dark);
+			transform: translateY(-1px);
+		}
+
+		.results {
+			margin-top: 30px;
+			padding-top: 24px;
+			border-top: 1px solid var(--line);
+		}
+
+		.result-main {
+			margin: 4px 0 20px;
+			color: var(--accent-dark);
+			font-size: clamp(2rem, 5vw, 3.1rem);
+			line-height: 1;
+		}
+
+		.result-label {
+			margin: 0;
+			color: var(--muted);
+			font: 700 0.75rem Arial, sans-serif;
+			letter-spacing: 0.09em;
+			text-transform: uppercase;
+		}
+
+		.result-details {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 14px;
+		}
+
+		.detail {
+			padding: 14px;
+			background: #f4f9f7;
+			border-radius: 9px;
+		}
+
+		.detail strong {
+			display: block;
+			margin-top: 7px;
+			font-size: 1.25rem;
+			font-weight: 400;
+		}
+
+		.breakdown {
+			margin-top: 22px;
+			border-top: 1px solid var(--line);
+		}
+
+		.breakdown summary {
+			padding: 17px 0;
+			color: var(--accent-dark);
+			cursor: pointer;
+			font: 700 0.85rem Arial, sans-serif;
+			list-style-position: inside;
+		}
+
+		.breakdown-content {
+			max-height: 280px;
+			overflow-y: auto;
+			border: 1px solid var(--line);
+			border-radius: 9px;
+		}
+
+		.breakdown table {
+			width: 100%;
+			border-collapse: collapse;
+			font: 0.85rem Arial, sans-serif;
+		}
+
+		.breakdown th,
+		.breakdown td {
+			padding: 11px 12px;
+			text-align: right;
+			white-space: nowrap;
+		}
+
+		.breakdown th:first-child,
+		.breakdown td:first-child {
+			text-align: left;
+		}
+
+		.breakdown th {
+			position: sticky;
+			top: 0;
+			color: var(--muted);
+			background: #f4f9f7;
+			font-size: 0.7rem;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		.breakdown td {
+			border-top: 1px solid #edf2f0;
+		}
+
+		.error {
+			min-height: 1.2em;
+			margin: 12px 0 0;
+			color: #b42318;
+			font: 0.85rem Arial, sans-serif;
+		}
+
+		@media (max-width: 700px) {
+			body {
+				padding: 12px;
+			}
+
+			.calculator {
+				grid-template-columns: 1fr;
+			}
+
+			.intro {
+				min-height: 300px;
+			}
+
+			.formula {
+				margin-top: 34px;
+			}
+		}
+
+		@media (max-width: 430px) {
+			.form-grid,
+			.result-details {
+				grid-template-columns: 1fr;
+			}
+
+			.full-width {
+				grid-column: auto;
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="calculator">
+		<section class="intro" aria-labelledby="page-title">
+			<div>
+				<p class="eyebrow">Explore repeated growth</p>
+				<h1 id="page-title">Watch a number grow.</h1>
+				<p class="intro-copy">See how a principal changes as interest is added and compounded over time.</p>
+			</div>
+			<p class="formula">A = P(1 + r/n)<sup>nt</sup></p>
+			<p class="formula-note">A = final amount · P = principal · r = interest rate · n = periods per year · t = time</p>
+		</section>
+
+		<section class="form-panel" aria-labelledby="calculator-title">
+			<h2 id="calculator-title">Enter the values</h2>
+			<form id="interest-form">
+				<div class="form-grid">
+					<label>
+						Principal
+						<input id="principal" type="number" min="0" step="0.01" value="1000" required>
+					</label>
+					<label>
+						Annual interest rate (%)
+						<input id="rate" type="number" min="0" step="0.01" value="6" required>
+					</label>
+					<label>
+						Time (years)
+						<input id="years" type="number" min="1" step="1" value="10" required>
+					</label>
+					<label class="full-width">
+						Compounding frequency
+						<select id="frequency">
+							<option value="1">Annually</option>
+							<option value="2">Semi-annually</option>
+							<option value="4">Quarterly</option>
+							<option value="12" selected>Monthly</option>
+							<option value="365">Daily</option>
+						</select>
+					</label>
+				</div>
+				<button type="submit">Calculate</button>
+				<p id="error" class="error" role="alert"></p>
+			</form>
+
+			<div class="results" aria-live="polite">
+				<p class="result-label">Final value</p>
+				<p id="final-balance" class="result-main">0.00</p>
+				<div class="result-details">
+					<div class="detail">
+						<p class="result-label">Principal</p>
+						<strong id="principal-result">0.00</strong>
+					</div>
+					<div class="detail">
+						<p class="result-label">Total interest</p>
+						<strong id="interest-earned">0.00</strong>
+					</div>
+				</div>
+				<details class="breakdown">
+					<summary>Show period breakdown</summary>
+					<div class="breakdown-content">
+						<table>
+							<thead>
+								<tr>
+									<th>Period</th>
+									<th>Interest earned</th>
+									<th>Total after period</th>
+								</tr>
+							</thead>
+							<tbody id="breakdown-rows"></tbody>
+						</table>
+					</div>
+				</details>
+			</div>
+		</section>
+	</main>
+
+	<script>
+		const form = document.getElementById('interest-form');
+		const errorMessage = document.getElementById('error');
+		const numberFormat = new Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		});
+
+		function calculateInterest(event) {
+			event.preventDefault();
+
+			const principal = Number(document.getElementById('principal').value);
+			const annualRate = Number(document.getElementById('rate').value) / 100;
+			const years = Number(document.getElementById('years').value);
+			const frequency = Number(document.getElementById('frequency').value);
+
+			if (![principal, annualRate, years].every(Number.isFinite) || principal < 0 || annualRate < 0 || years <= 0) {
+				errorMessage.textContent = 'Please enter a principal, a non-negative interest rate, and a time greater than zero.';
+				return;
+			}
+
+			const periods = frequency * years;
+			const periodicRate = annualRate / frequency;
+			let total = principal;
+			let totalInterest = 0;
+			const breakdownRows = [];
+
+			for (let period = 1; period <= periods; period += 1) {
+				const interest = total * periodicRate;
+				total += interest;
+				totalInterest += interest;
+				breakdownRows.push(`<tr><td>${period}</td><td>${numberFormat.format(interest)}</td><td>${numberFormat.format(total)}</td></tr>`);
+			}
+
+			document.getElementById('final-balance').textContent = numberFormat.format(total);
+			document.getElementById('principal-result').textContent = numberFormat.format(principal);
+			document.getElementById('interest-earned').textContent = numberFormat.format(totalInterest);
+			document.getElementById('breakdown-rows').innerHTML = breakdownRows.join('');
+			errorMessage.textContent = '';
+		}
+
+		form.addEventListener('submit', calculateInterest);
+		form.dispatchEvent(new Event('submit'));
+	</script>
+</body>
+</html>

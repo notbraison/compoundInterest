@@ -92,6 +92,72 @@
 			font: 0.78rem/1.5 Arial, sans-serif;
 		}
 
+		.lesson-card {
+			margin-top: 30px;
+			padding: 18px 18px 14px;
+			background: rgba(255, 255, 255, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.18);
+			border-radius: 14px;
+			backdrop-filter: blur(2px);
+			opacity: 1;
+			transition: opacity 240ms ease, transform 240ms ease;
+		}
+
+		.lesson-card.is-changing {
+			opacity: 0.2;
+			transform: translateY(2px);
+		}
+
+		.lesson-card .eyebrow {
+			margin-bottom: 12px;
+			color: #d9f6f1;
+			font-size: 0.68rem;
+		}
+
+		.lesson-title {
+			margin: 0 0 10px;
+			font: 700 1rem/1.3 Arial, sans-serif;
+			color: #ffffff;
+		}
+
+		.lesson-text {
+			margin: 0;
+			color: #e7faf7;
+			font: 0.9rem/1.6 Arial, sans-serif;
+		}
+
+		.lesson-meta {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-top: 16px;
+		}
+
+		.lesson-chip {
+			padding: 7px 10px;
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.12);
+			color: #d7f4ef;
+			font: 700 0.7rem Arial, sans-serif;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		.lesson-button {
+			padding: 8px 12px;
+			border: 0;
+			border-radius: 999px;
+			background: #ffffff;
+			color: var(--accent-dark);
+			font: 700 0.72rem Arial, sans-serif;
+			cursor: pointer;
+		}
+
+		.lesson-button:hover {
+			background: #edfdf9;
+		}
+
 		.form-panel {
 			background: var(--surface);
 		}
@@ -314,6 +380,16 @@
 			</div>
 			<p class="formula">A = P(1 + r/n)<sup>nt</sup></p>
 			<p class="formula-note">A = final amount · P = principal · r = interest rate · n = periods per year · t = time</p>
+
+			<div class="lesson-card" aria-live="polite">
+				<p class="eyebrow">Compounding lesson</p>
+				<h3 id="lesson-title" class="lesson-title">Rice and the Chessboard</h3>
+				<p id="lesson-text" class="lesson-text">One grain doubles every square, and by the end the growth becomes absurdly large. This is the clearest reminder that compounding looks small at first and then explodes.</p>
+				<div class="lesson-meta">
+					<span class="lesson-chip" id="lesson-tag">Exponential growth</span>
+					<button type="button" class="lesson-button" id="lesson-button">Next lesson</button>
+				</div>
+			</div>
 		</section>
 
 		<section class="form-panel" aria-labelledby="calculator-title">
@@ -386,10 +462,60 @@
 	<script>
 		const form = document.getElementById('interest-form');
 		const errorMessage = document.getElementById('error');
+		const lessonTitle = document.getElementById('lesson-title');
+		const lessonText = document.getElementById('lesson-text');
+		const lessonTag = document.getElementById('lesson-tag');
+		const lessonButton = document.getElementById('lesson-button');
 		const numberFormat = new Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 2,
 			maximumFractionDigits: 2
 		});
+
+		const anecdotes = [
+			{
+				title: 'Rice and the Chessboard',
+				tag: 'Exponential growth',
+				text: 'One grain doubles every square, and by the end the growth becomes absurdly large. This is the clearest reminder that compounding looks small at first and then explodes.'
+			},
+			{
+				title: 'Benjamin Franklin’s 200-Year Experiment',
+				tag: 'Time compounds',
+				text: 'Franklin left money untouched for 200 years, and the tiny starting amount grew into millions. Time does the heavy lifting; patience is often more powerful than a large upfront contribution.'
+			},
+			{
+				title: 'The Snowball on a Mountain',
+				tag: 'Momentum builds',
+				text: 'The first few steps feel slow, but once the snowball gathers size, it starts growing on its own. Compound interest behaves the same way: the real acceleration shows up later, after the early groundwork is laid.'
+			}
+		];
+
+		let lessonIndex = 0;
+
+		function renderLesson(index) {
+			const anecdote = anecdotes[index];
+			lessonTitle.textContent = anecdote.title;
+			lessonText.textContent = anecdote.text;
+			lessonTag.textContent = anecdote.tag;
+		}
+
+		function rotateLesson() {
+			const lessonCard = document.querySelector('.lesson-card');
+			lessonCard.classList.add('is-changing');
+
+			setTimeout(() => {
+				let nextIndex = Math.floor(Math.random() * anecdotes.length);
+				while (nextIndex === lessonIndex && anecdotes.length > 1) {
+					nextIndex = Math.floor(Math.random() * anecdotes.length);
+				}
+				lessonIndex = nextIndex;
+				renderLesson(lessonIndex);
+				lessonCard.classList.remove('is-changing');
+			}, 180);
+		}
+
+		lessonButton.addEventListener('click', rotateLesson);
+		window.setInterval(rotateLesson, 7000);
+		renderLesson(lessonIndex);
 
 		function calculateInterest(event) {
 			event.preventDefault();
